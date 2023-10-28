@@ -65,6 +65,7 @@ function Votersac() {
       );
       const userAddress = await signer.getAddress();
       const voteStatus = await contractInstance.voters(userAddress);
+      console.log(voteStatus)
       setCanVote(!voteStatus);
     } catch (error) {
       console.log('Error checking voting status: ' + error.message);
@@ -81,6 +82,9 @@ function Votersac() {
       signer
     );
       const candidatesList = await contractInstance.getAllVotesOfCandiates();
+      const userAddress = await signer.getAddress();
+      const voteStatus = await contractInstance.voters(userAddress);
+      console.log(voteStatus)
       const formattedCandidates = candidatesList.map((candidate, index) => {
         return {
           index: index,
