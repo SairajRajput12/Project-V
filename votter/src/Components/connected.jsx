@@ -15,10 +15,6 @@ const Connected = (props) => {
         <button className="login-button" onClick={props.voteFunction}>Vote here</button>
       </div>
       )}
-      <div>
-        <input type="number" placeholder='enter the candidate index' value = {props.number} onChange={props.handleNumberChange}/> 
-        <button className="login-button" onClick={props.voteFunction}>Vote here</button>
-      </div>
       
       
         <table id="myTable" className="candidates-table">
@@ -45,4 +41,3 @@ const Connected = (props) => {
 };
 
 export default Connected;
-// npx hardhat run --network sepolia  scripts/deploy.js 
