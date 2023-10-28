@@ -20,7 +20,8 @@ conn = mysql.connector.connect(
 cursor = conn.cursor()
 
 def updateSampleJS(candidateNames, duration):
-    # Define the content to be written to "sample.js"
+    # Define the content to be written to "sample.js" 
+    # duration = 2
     js_content = f'const a = {candidateNames};\nconst b = {duration};\n\nmodule.exports = {{ a, b }};\n'
 
     # Set the directory where "sample.js" is located

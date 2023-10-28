@@ -17,12 +17,15 @@ function Votersac() {
   const [candidates, setCandidates] = useState([]);
   const [number, setNumber] = useState('');
   const [CanVote, setCanVote] = useState(true);
-
+  const [winner,setWinner] = useState(''); 
+  const [voteCount,setCount] = useState(0);
+  const [finit,setfini] = useState(false);
 
   useEffect( () => {
     getCandidates();
     getRemainingTime();
     getCurrentStatus();
+    getWinner();
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', handleAccountsChanged);
     }
@@ -137,6 +140,37 @@ function Votersac() {
     setNumber(e.target.value);
   }
 
+  async function getWinner() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const contractInstance = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      signer
+    );
+    const participants = await contractInstance.getAllVotesOfCandiates();
+    const formattedData = participants.map((candidate) => ({
+      name: candidate[0], // Access the first element as the candidate's name
+      voteCount: candidate[1].toNumber(),
+    }));
+  
+    console.log(formattedData);
+  
+    if (!votingStatus && remainingTime <= 0) {
+      const maxVoteCountCandidate = formattedData.reduce(
+        (max, candidate) =>
+          max.voteCount > candidate.voteCount ? max : candidate
+      );
+      console.log(maxVoteCountCandidate);
+      setWinner(maxVoteCountCandidate.name);
+      setCount(maxVoteCountCandidate.voteCount);
+      setfini(true);
+    }
+  }
+  
+  
+
   return (
     <div className="App">
       { votingStatus ? (isConnected ? (<Connected 
@@ -150,7 +184,11 @@ function Votersac() {
                       
                       : 
                       
-                      (<Login connectWallet = {connectToMetamask}/>)) : (<Finished />)}
+                      (<Login connectWallet = {connectToMetamask}/>)) : (<Finished winner={winner} votes = {voteCount} connectWallet={connectToMetamask}/>)}
+
+      {finit && (
+        <h1>The winner of this election is {winner}</h1>
+      )}                
       
     </div>
   );
