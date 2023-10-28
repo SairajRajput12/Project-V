@@ -24,7 +24,7 @@ def updateSampleJS(candidateNames, duration):
     js_content = f'const a = {candidateNames};\nconst b = {duration};\n\nmodule.exports = {{ a, b }};\n'
 
     # Set the directory where "sample.js" is located
-    directory_path = 'E:/Block chain project'
+    directory_path = 'E:/Block chain project/scripts'
 
     # Change the current working directory to the specified directory
     os.chdir(directory_path)
