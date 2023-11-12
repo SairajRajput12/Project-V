@@ -1,0 +1,43 @@
+.footer{
+   height: 14rem;
+   width: 100%;
+   background-color: #27374D;
+   color: white;
+   padding: 20px;
+}
+.footer .title{
+   font-size: 2rem;
+   font-weight: 900;
+   margin-left: 10px;
+   /* color: #1F4172; */
+   cursor: pointer;
+
+}
+.footer .side1{
+   width: 50%;
+   margin: 15px;
+}
+.footer .side1 h3{
+   margin-top: 40px;
+}
+
+.footer .side2{
+   margin: 15px;
+}
+.footer .side2 h3{
+   margin-bottom: 10px;
+}
+.footer .side2 i{
+   font-size: 2em;
+   margin-left: 10px;
+}
+.footer .side2 .clist span{
+   margin-left: 10rem;
+}
+.footer .side2 .clist{
+   margin-bottom: 2rem;
+}
+.footer .side2 .email{
+   margin-bottom: 3rem;
+   margin-left: 20.5rem;
+}

@@ -14,17 +14,17 @@ contract VOTING {
     uint256 public votingStart;
     uint256 public votingEnd;
 
-constructor(string[] memory _candidateNames, uint256 _durationInMinutes) {
-    for (uint256 i = 0; i < _candidateNames.length; i++) {
-        candidates.push(Candidate({
-            name: _candidateNames[i],
-            voteCount: 0
-        }));
+    constructor(string[] memory _candidateNames, uint256 _durationInMinutes) {
+        for (uint256 i = 0; i < _candidateNames.length; i++) {
+            candidates.push(Candidate({
+                name: _candidateNames[i],
+                voteCount: 0
+            }));
+        }
+        owner = msg.sender;
+        votingStart = block.timestamp;
+        votingEnd = block.timestamp + (_durationInMinutes * 1 minutes);
     }
-    owner = msg.sender;
-    votingStart = block.timestamp;
-    votingEnd = block.timestamp + (_durationInMinutes * 1 minutes);
-}
 
     modifier onlyOwner {
         require(msg.sender == owner);
@@ -51,8 +51,8 @@ constructor(string[] memory _candidateNames, uint256 _durationInMinutes) {
     }
 
     function getVotingStatus() public view returns (bool) {
-    return (block.timestamp >= votingStart && block.timestamp < votingEnd);
-}
+        return (block.timestamp >= votingStart && block.timestamp < votingEnd);
+    }
 
     function getRemainingTime() public view returns (uint256) {
         require(block.timestamp >= votingStart, "Voting has not started yet.");
@@ -65,6 +65,5 @@ constructor(string[] memory _candidateNames, uint256 _durationInMinutes) {
     function hasVoted(address voter) public view returns (bool) {
         return voters[voter];
     }
-
 
 }

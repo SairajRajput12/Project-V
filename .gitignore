@@ -10,3 +10,6 @@ cache
 artifacts
 hardhat_config
 
+#Environment Variables
+.env
+venv - Copy

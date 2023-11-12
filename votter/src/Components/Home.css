@@ -1,0 +1,247 @@
+.home{
+   height: 100vh;
+   width: 100vw;
+   z-index: 2;
+   filter: blur(10px);
+   transition: 0.4s all ease-in-out;
+}
+.home .user-login{
+   margin-top: 4rem;
+   flex-direction: column;
+   height: 91%;
+   width: 40%;
+   background: linear-gradient(145deg, #FEFCF3, #ECF9FF);
+   /* border-radius: 100% 0% 42% 58%  / 48% 49% 51% 52%  ; */
+   border-radius: 10px;
+   right: 0%;
+   /* box-shadow: 4px 4px 6px #ECF9FF; */
+}
+.home .election{
+   font-size: 2rem;
+   margin-bottom: 10px;
+}
+.home .vote{
+   font-size: 1.2rem;
+   margin-bottom: 20px;
+}
+.home .button{
+   
+   height: 2.5rem;
+   width: 5.5rem;
+   border: 3px solid #1F4172;
+   border-radius: 30px;
+   font-size: 1.2rem;
+   cursor: pointer;
+   overflow: hidden;
+   z-index: 3;
+   transition: 0.3s all ease-in-out;
+}
+.home .but2{
+   width: 10.3rem;
+   margin-left: 10px;
+   background: none;
+   color: black;
+}
+.home .but2:hover{
+   color: white;
+   background-color: #1F4172;
+}
+.home .but1{
+   background-color: #1F4172;
+   color: white;
+}
+.home .but1:hover{
+   background: none;
+   color: black;
+}
+
+.home img{
+   width: 4em;
+   margin-bottom: 10px;
+}
+
+.home .content{
+   height: 100%;
+   position: relative;
+   width: 60%;
+   /* position: absolute; */
+   justify-content: center;
+   /* overflow-x: hidden; */
+   /* background-color: green; */
+}
+.Scroll::-webkit-scrollbar {
+   display: none;
+ }
+.content .Scroll{
+   height: 100%;
+   width: 80%;
+   overflow: auto;
+   scroll-snap-type: x mandatory;
+   scroll-behavior: smooth;
+   /* -ms-overflow-style: none; */
+   /* scrollbar-width: none;  */
+   /* background-color: red; */
+}
+
+.cont{
+   /* flex: 1 0 100%; */
+   /* scroll-snap-align: start; */
+   /* object-fit: cover; */
+   border-radius: 10px;
+   width: 50em;
+   /* position: absolute; */
+   /* width: 2326px; */
+   padding: 20px;
+   height: 30%;
+   flex-direction: column;
+   margin-left: 2rem;
+   /* z-index: 1; */
+   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+   transform: translateX(0px);
+   animation: anime 60s linear 0.3s infinite;
+}
+
+@keyframes anime {
+   0%{
+      transform: translateX(0px);
+   }
+   50%{
+      transform: translateX(-134em);
+   }
+}
+
+.cont span{
+   width: 40rem;
+}
+.cont img{
+   width: 10rem;
+}
+ 
+
+
+
+
+/* Form */
+.auth{
+   display: none;
+}
+.adhar{
+   flex-direction: column;
+}
+input{
+   width: 20rem;
+   height: 2.5rem;
+   /* border: none; */
+   outline: none;
+   font-size: 1.2em;
+   padding-left: 5px;
+   border-radius: 10px;
+   border: 0;
+   /* border-bottom: 2px solid black; */
+   /* box-shadow: 3px 3px 6px black; */
+   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+label{
+   margin-bottom: 5px;
+   margin-left: 5px;
+}
+form .otpBtn{
+   margin-top: 5px;
+   margin-bottom: 5px;
+   margin-left: 14.2rem;
+   /* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */
+}
+form .otpBtn button{
+   background: none;
+   border: none;
+   cursor: pointer;
+}
+
+form .login{
+   margin-top: 16px;
+   width: 10rem;
+   margin-left: 1%;
+   margin-left: 5em;
+   height: 2.5em;
+   border: 2px solid #1F4172;
+   border-radius: 2rem;
+   background: none;
+   color: white;
+   font-size: 1.1rem;
+   background-color: #1F4172;
+   transition: 0.3s all ease-in-out;
+   cursor: pointer;
+}
+form .login:hover{
+   background: none;
+   color: black;
+}
+
+.back i{
+   font-size: 2em;
+   bottom: 0;
+   right: 0;
+   padding-right: 10px;
+   padding: 10px;
+   background-color: #1F4172;
+   border-top-left-radius: 30px;
+   border-bottom-left-radius: 30px;
+   color: white;
+   cursor: pointer;
+   transition: 0.3s all ease-in;
+   border: 2px solid #1F4172;
+   border-right: none;
+}
+.back i:hover{
+   background: transparent;
+   color: black;
+}
+
+
+.admin-login{
+   top: 20%;
+   left: 40%;
+   width: 30%;
+   height: 60%;
+   background-color: white;
+   z-index: 20;
+   border-radius: 1.2em;
+   /* padding-left: 10px; */
+   overflow: hidden;
+   box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 50px;
+   transition: 0.3s all ease-in-out;
+   transform: translateY(0);
+}
+
+.admin-login form{
+   margin-left: 14%;
+   margin-top: 10%;
+
+}
+.admin-login .login{
+   margin-top: 1.5em;
+}
+.admin-login .adhar input{
+   margin-bottom: 20px;
+}
+
+
+.visible{
+   display: flex;
+}
+
+.disable-admin-login-page{
+   transform: translateY(-135%);
+}
+.blur-home{
+   filter: blur(0px);
+}
+
+.adminLogin{
+   margin-top: 15px;
+   margin-left: 35%;
+   color: #1F4172;
+}
+.hide{
+   display: none;
+}
