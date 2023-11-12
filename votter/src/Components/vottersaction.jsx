@@ -6,6 +6,7 @@ import Connected from './connected';
 import Finished from './Finished';
 // import './App.css';
 import k from '../contractDetails.json'
+
 function Votersac() { 
   const contractAddress = k.address; 
   const contractAbi = k.abi;  
