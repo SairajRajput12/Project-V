@@ -9,7 +9,7 @@ from os.path import join, dirname
 import requests
 from twilio.rest import Client
 import random
-# import bcrypt
+import bcrypt
 
 app = Flask(__name__)
 
@@ -17,13 +17,13 @@ dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 
 #************************ SOME IMPORTANT SECRET KEYs *****************
-SEC_EC_KEY = os.environ.get("SEC_EC_KEY")
-API_SEC_KEY = os.environ.get("API_SEC_KEY") 
-ACC_SID = os.environ.get("ACC_SID")
-AUTH_TOKEN = os.environ.get("AUTH_TOKEN")
-TWILIO_NUMBER = os.environ.get("TWILIO_NUMBER")
-DB_PASS = os.environ.get("DB_PASS")
-DB_NAME = os.environ.get("DB_NAME")
+SEC_EC_KEY = "vilassairajtushar"
+API_SEC_KEY = "RFDnwcYWFXjYbKm1UqTrRaUnFyximFGE"
+ACC_SID = "AC68b8fb29a4a359d8091eda075d0315e9"
+AUTH_TOKEN = "dd3ef75a12eb779f6dd69f9cce1b3778"
+TWILIO_NUMBER = "+13343669183"
+# DB_PASS = os.environ.get("DB_PASS")
+# DB_NAME = os.environ.get("DB_NAME")
 
 app.secret_key = SEC_EC_KEY # Secret Key on which we are storing sessions, Something like Encryption Key
 
@@ -32,8 +32,8 @@ app.secret_key = SEC_EC_KEY # Secret Key on which we are storing sessions, Somet
 conn = mysql.connector.connect( 
     host="localhost",
     user="root",
-    password=DB_PASS,
-    database=DB_NAME
+    password="Sai@121530",
+    database="votingsample"
 )
 cursor = conn.cursor()
 
@@ -46,10 +46,9 @@ def updateSampleJS(candidateNames, duration):
 
     # Set the directory where "sample.js" is located
     # directory_path = 'E:/Block chain project/scripts'
-    directory_path = "C:/Users/Vilas/Desktop/IPR_Project/Projec-V/scripts"
-
+    directory_path = "E:/Block chain project/scripts"
     # Change the current working directory to the specified directory
-    os.chdir(directory_path)
+    os.chdir(directory_path) 
 
     # Write the updated content to "sample.js"
     with open("sample.js", "w") as js_file:
@@ -62,17 +61,22 @@ def makeRun(candidateNames, duration):
     # Set the directory where your Node.js script is located
     print('inside makeRun functions')
     # directory_path = 'E:/Block chain project'
-    directory_path = 'C:/Users/Vilas/Desktop/IPR_Project/Projec-V'
+    directory_path = 'E:/Block chain project'
     updateSampleJS(candidateNames, duration)
+    print('line 66')
     # Define the Node.js command to run your script with lowercase arguments
     command = f'npx hardhat run scripts/deploy.js --network sepolia'
-
+    command1 = f'npx hardhat compile'
+    r1 = subprocess.run(command1,shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    print('line 68')
     # Use the os module to change the current working directory
     os.chdir(directory_path)
 
+    print('line 71')
     # Use subprocess to run the Node.js command
+    print('Command:', command)
     result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    print(result)
+    print('function exit succesfully')
     if result.returncode == 0:
         print("Command executed successfully")
         print("Output:", result.stdout)
@@ -118,17 +122,11 @@ def start_election():
         data = request.get_json()  # Receive data from the POST request
         candidate_names = data.get("candidateNames")
         duration = data.get("duration")
+        add_data(candidate_names,duration)
         print(candidate_names) 
         print(duration)
-        names = [item['name'].strip() for item in candidate_names]
-        # os.chdir('E:\\Block chain project')
-        print(names)
-        # Perform any necessary validation on the received data
         deploy_script_path = 'E:/Block chain project/scripts/deploy.js'  # Replace with the actual path to deploy.js
-        makeRun(names,duration)
-        # Execute the external Node.js script with the data as command-line arguments
-        # subprocess.check_call(['node', deploy_script_path, json.dumps(candidate_names), str(duration)])
-
+        makeRun(candidate_names,duration)
         return jsonify({"message": "Election started successfully"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -136,31 +134,48 @@ def start_election():
 
 
 #************************* Add candidates *****************************
-@app.route('/add', methods=['POST'])
-def add_data():
+def giveCandidateId():
+    return random.randrange(100000, 999999)
+
+
+def add_data(candidate_names, electionDuration):
+    votes = 0
+
     try:
-        data = request.get_json()
-        electionDuration = data.get('electionDuration')
-        candidates = data.get('candidates')
+        # Establish a database connection and cursor
+        with conn.cursor() as cursor:
+            print('i entered from first delete query')
+            delete_query = "DELETE FROM voted_to"
+            cursor.execute(delete_query)
+            print('both of these queries get executed')
+            # Commit the changes to the database
+            # conn.commit()
 
-        if electionDuration is None or candidates is None:
-            return jsonify({"error": "Missing election duration or candidates"}), 400
+            # Delete existing data from the 'candidate' table
+            delete_query = "DELETE FROM candidate"
+            cursor.execute(delete_query) 
+            # conn.commit()
+            # Delete existing data from the 'voted_to' table
+            print('here the delete queries executed succesfully')
+            if electionDuration is None or candidate_names is None:
+                return jsonify({"error": "Missing election duration or candidates"}), 400
 
-        for candidate in candidates:
-            insert_query = "INSERT INTO elections (duration, candidate_id, candidate_name) VALUES (%s, %s, %s)"
-            values = (electionDuration, candidate.get('id'), candidate.get('name'))
-            cursor.execute(insert_query, values)
+            candidate_id_list = [giveCandidateId() for _ in candidate_names]
 
-        conn.commit()
+            for candidate_id, candidate_name in zip(candidate_id_list, candidate_names):
+                # Use parameterized queries to prevent SQL injection
+                insert_query = "INSERT INTO candidate VALUES (%s, %s, %s)"
+                values = (candidate_id, candidate_name, votes)
+                cursor.execute(insert_query, values)
 
-        return jsonify({"message": "Election data inserted successfully"})
+            # Commit the changes to the database
+            conn.commit()
     except Exception as e:
-        # Log the error for debugging
-        print("Error:", str(e))
-
-        # Return a more specific error message
-        return jsonify({"error": "Internal Server Error: Failed to insert data"}), 500
-
+        # Handle exceptions, log the error, and return an error response
+        return jsonify({"error": f"Failed to insert data: {str(e)}"}), 500
+    finally:
+        # Close the database connection
+        conn.close()
 
 
 #*********************** Verifying Admin ************************ 
@@ -171,15 +186,16 @@ def verify():
         data = request.get_json()
         username = data.get('username')
         password = data.get('password')
-
+        print("entered into the verify function")
         # Execute a SQL query to check if the data is present in the database
-        query = "SELECT * FROM admindetails WHERE username = %s AND password = %s"
+        query = "SELECT * FROM adminI WHERE name = %s AND password = %s"
         cursor.execute(query, (username, password))
         result = cursor.fetchone()
-
-        # print(result)
+        print("your query is executed succesfully for admin verification")
+        print(result)
         if result:
             # Data is present in the database
+            print("your query is executed succesfully for admin verification")
             return jsonify({"message": "Data is present in the database"})
         else:
             # Data is absent in the database
@@ -199,21 +215,29 @@ def generateOTP():
 def adharVerify():
     try:
         OTP = generateOTP()
-
+        print(OTP)
         #Getting aadhar no. inputed in client
         data = request.get_json()
-        adhar = data.get('adhar') 
-
+        adhar = data.get('adhar')
+        print(data) 
+        print(adhar)
          # finding mobile no. linked with aadhar no.
         query = "SELECT mobileno FROM aadhar WHERE id = %s"
-        cursor.execute(query, (adhar,))
+        print(query)
+        values = (adhar,)
+        cursor.execute(query, values)
         mobile = cursor.fetchone()
-        phone=str(mobile[0])      
-
+        print(mobile)
+        phone=str(mobile[0])    
+        print("phone is "+phone)  
+        print(ACC_SID) 
+        print(AUTH_TOKEN)
         client = Client(ACC_SID, AUTH_TOKEN)
-        body = "Your OTP is " + str(OTP)
-        # print(body)
-
+        print(client)
+        body = "pappa he otp ahe  " + str(OTP)
+        print(body)
+        original_string = "+"+phone
+        print(original_string)
         # Pushing OTP in session for verifying later
         session['response'] = str(OTP)  
 
@@ -221,8 +245,9 @@ def adharVerify():
         message = client.messages.create( 
             from_=TWILIO_NUMBER,
             body=body,
-            to=phone
+            to=original_string
         )
+        print(message)
 
         # some validations 
         if message:
@@ -230,6 +255,7 @@ def adharVerify():
         else:
             return jsonify({"status":400, "message": "Failed"})
 
+        # print(message)
     except Exception as e:
         return jsonify({"error": str(e), "code": 404})
 
@@ -271,6 +297,82 @@ def delete_data(id):
         return jsonify({"error": str(e), "code":500})  # 500 for Internal Server Error
 
 
+@app.route('/register_transaction',methods=['POST']) 
+def register():
+    try:
+        print('entered inside registered function') 
+        data = request.get_json()
+        print(data) 
+        id = data.get('id')
+        id_str = str(id)  # New variable to hold the string representation of id
+        candidate_name = data.get('candidate')['name']
+        print(candidate_name)
+        # Execute the query to get candidate_id based on candidate_name
+        query = "SELECT candidate_id FROM candidate WHERE candidate_name = %s" 
+        print('query to be executed') 
+        values = (candidate_name,)
+        print(candidate_name)
+        cursor.execute(query, values)
+        candidate = cursor.fetchone()
+
+        voter_hashed_id = ''
+        if candidate:
+            # Candidate found, proceed with the insert query
+            
+            bytes_id = id_str.encode('utf-8')
+            salt = bcrypt.gensalt()
+            print('inside if statemetn') 
+
+            # Hashing the id
+            voter_hashed_id_bytes = bcrypt.hashpw(bytes_id, salt)
+            voter_hashed_id = voter_hashed_id_bytes.decode('utf-8')  # Convert bytes to string
+            insert_query = "INSERT INTO voted_to(voter_id,candidate_name) VALUES (%s, %s)"
+            # Assuming id is the same for both vote_id and voter_id
+            values = (voter_hashed_id, str(candidate[0]))  # Assuming candidate_id is the first column 
+            cursor.execute(insert_query, values)
+            print('insert query executed')
+            # Commit the changes to the database
+            conn.commit()
+
+            return jsonify({"status": 200,"message": "Transaction recorded successfully","voter_hashed_id": voter_hashed_id})
+
+        else:
+            return jsonify({"status": 404, "message": "Candidate not found"})
+
+    except mysql.connector.Error as err:
+        return jsonify({"status": 500, "message": f"Database error: {err}"})
+ 
+
+@app.route('/fetch_voted_data', methods=['GET']) 
+def fetch_voted_data(): 
+    try:
+        print('inside fetch data function') 
+        voter_id_query = "SELECT voter_id FROM voted_to"
+        candidate_name_query = "SELECT candidate_name FROM voted_to"
+
+        cursor.execute(voter_id_query) 
+        voter_ids = [result[0] for result in cursor.fetchall()] 
+        print(voter_ids) 
+
+        cursor.execute(candidate_name_query) 
+        candidate_names = [result[0] for result in cursor.fetchall()] 
+        print(candidate_names) 
+
+        response_data = {
+            "status": 200,
+            "message": "Transaction recorded successfully",
+            "voter_ids": voter_ids,
+            "candidate_names": candidate_names
+        }
+        print('end of fetch data function')
+
+    except Exception as e:
+        response_data = {
+            "status": 500, 
+            "message": f"Error: {str(e)}"
+        }
+
+    return jsonify(response_data)  # Corrected the return statement
 #******************* Just Kidding ********************************
 @app.route('/')
 def hello_world():

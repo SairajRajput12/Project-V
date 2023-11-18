@@ -75,7 +75,7 @@ function AdminPanel(props) {
     { id: '', name: '', duration: '' }, // Initial empty candidate
   ]);
   const [electionDuration, setElectionDuration] = useState(''); // Added duration state for the election
-
+  const Navigate = useNavigate();
 
   const handleCreateElection = () => {
     setShowForm(true);
@@ -87,7 +87,7 @@ function AdminPanel(props) {
       .then((response) => {
         console.log('Election started:', response.data);
         console.log(contractD); 
-        
+        Navigate("/");
 
       })
       .catch((error) => {

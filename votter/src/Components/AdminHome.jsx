@@ -3,7 +3,7 @@ import "./AdminHome.css";
 import styled from 'styled-components';
 import axios from 'axios';
 import contractD from '../contractDetails.json'
-
+import { useEffect } from 'react';
 const Container = styled.div`
   background-color: #001f3f;
   color: white;
@@ -72,66 +72,68 @@ const headerStyle = { fontSize: '30px' };
 
 
 function AdminHome() {
-
-   // let fname, mname, lname, username; 
+   useEffect(() => {
+     console.log('AdminHome component rendered');
+   }, []);
+ 
+   // let fname, mname, lname, username;
    const [showForm, setShowForm] = useState(false);
+   const [isDivVisible, setDivVisibility] = useState(true);
    const [candidates, setCandidates] = useState([
-      { id: '', name: '', duration: '' }, // Initial empty candidate
+     { id: '', name: '' }, // Removed duration from candidates
    ]);
-   const [electionDuration, setElectionDuration] = useState(''); // Added duration state for the election
-
-
+   const [electionDuration, setElectionDuration] = useState('');
+ 
    const handleCreateElection = () => {
-      setShowForm(true);
+     setShowForm(true);
+     setDivVisibility(false);
    };
-
+ 
    const handleStartElection = (candidateNames, duration) => {
-      axios
-         .post('/start-election', { candidateNames, duration })
-         .then((response) => {
-            console.log('Election started:', response.data);
-            console.log(contractD);
-
-
-         })
-         .catch((error) => {
-            console.error('Error starting election:', error);
-         });
+     axios
+       .post('/start-election', { candidateNames, duration })
+       .then((response) => {
+         console.log('Election started:', response.data);
+         console.log(contractD);
+       })
+       .catch((error) => {
+         console.error('Error starting election:', error);
+       });
    };
-
+ 
    const handleCreateElection1 = async (e) => {
-      e.preventDefault(); // Prevent the default form submission
-      const candidateNames = candidates; // Replace with your candidate names
-      const duration = 23; // Replace with your desired duration
-      handleStartElection(candidateNames, duration);
+     e.preventDefault();
+     const candidateNames = candidates.map((candidate) => candidate.name);
+     const duration = electionDuration;
+     handleStartElection(candidateNames, duration);
    };
-
-
+ 
    const handleAddCandidate = () => {
-      setCandidates((prevCandidates) => [
-         ...prevCandidates,
-         { id: '', name: '', duration: '' }, // Add a new empty candidate
-      ]);
+     setCandidates((prevCandidates) => [
+       ...prevCandidates,
+       { id: '', name: '' },
+     ]);
    };
-
+ 
    const handleCandidateChange = (index, field, value) => {
-      setCandidates((prevCandidates) => {
-         const updatedCandidates = [...prevCandidates];
-         updatedCandidates[index][field] = value;
-         return updatedCandidates;
-      });
+     setCandidates((prevCandidates) => {
+       const updatedCandidates = [...prevCandidates];
+       updatedCandidates[index][field] = value;
+       return updatedCandidates;
+     });
    };
+ 
 
    return (
       <div className="admin-home">
          <div className="admin-details flex rel ali-cent">
             <img src={ require("../Images/user.png") } alt="" />
             <div className="details">
-               <div className="name">@vilasrabad</div>
+               <div className="name">@sairajrajput</div>
                <div className="user">
-                  <span>Vilas</span>
-                  <span>Balu</span>
-                  <span>Rabad</span>
+                  <span>Sairaj</span>
+                  <span>Prakash</span>
+                  <span>Rajput</span>
                </div>
             </div>
          </div>
@@ -146,12 +148,14 @@ function AdminHome() {
                      <span>History</span>
                   </div>
                </div>
-               <div className="ongoing-ele">
+               {isDivVisible && (
+                  <div className="ongoing-ele">
                   <span>On Going Election</span>
                   <div className="ele-details">
                      <span className="abs not-found">No Record</span>
                   </div>
                </div>
+                  )}
             </div>
             <div className="creating">
                <button><i class='bx bx-arrow-back'></i></button>

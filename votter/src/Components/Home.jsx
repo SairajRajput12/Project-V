@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import "./Home.css";
 import votImage from "../Images/voting-box.png";
+// import AdminHome from './AdminHome'
+// import {ethers} from 'ethers';
 
 function Home(props) {
 
@@ -10,7 +12,7 @@ function Home(props) {
   const [hide, setHide] = useState("hide");
   const [otpBtn, setOtpBtn] = useState("visible");
   const [disabled, setDisable] = useState("");
-
+  const [aadhar,setaadhar] = useState("")
   const [gotToLogin, setGoToLogin] = useState("");
   function showLoginPage() {
     setGoToLogin("visible");
@@ -42,6 +44,7 @@ function Home(props) {
   // Wait untill timer is get === 0
   useEffect(()=>{
     counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
+    
     if(counter === 0) {
       setOtpBtn("visible");
       setHide("hide");
@@ -52,12 +55,13 @@ function Home(props) {
   const postAdhar = async (e)=>{
     e.preventDefault();
     const adhar = userData.adhar;
-    // console.log(adhar);
+    console.log(adhar);
 
     if(adhar === "" || adhar.length > 12){
       window.alert("Wrong Information");
     }
     else{
+      setaadhar(adhar);
       setOtpBtn("hide");
       setCounter(30);
       setDisable("disabled");
@@ -72,6 +76,7 @@ function Home(props) {
         })
       });
       const data = await res.json();
+      console.log(data); 
       if(data.status === 200){
         window.alert("OTP Sent Successfully on Mobile Number Linked with AADHAR Number!");
       }
@@ -88,7 +93,7 @@ function Home(props) {
   const verifyOtp = async(e)=>{
     e.preventDefault();
     const otp = userData.otp;
-    // console.log(adhar);
+    console.log(otp);
 
     const res = await fetch("/verifyOTP", {
       method: "POST",
@@ -103,7 +108,7 @@ function Home(props) {
     const data = await res.json();
     if(data.status === 200){
       window.alert("OTP Verified Successfully!");
-      Navigate("/Votersaction");
+      Navigate("/Votersaction",{state:{aadhar}});
     }
     else if(data.status === 403){
       window.alert("INVALID OTP");
@@ -145,15 +150,16 @@ function Home(props) {
     });
  
     const data = await res.json();
-    // console.log(data);
+    console.log(data);
 
     if(data.code === 403){
        window.alert("Invalid Credentials!");
        console.log("invalid Credentials!");
     }
     else{
-      //  window.alert("Login Successfuly");
+       window.alert("Login Successfuly");
        Navigate("/adminHome");
+       console.log("line executed succesfully !!!"); 
     }
  }
 

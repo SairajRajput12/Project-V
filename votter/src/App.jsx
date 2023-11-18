@@ -17,8 +17,8 @@ function App() {
   
   return (
     <div className="App">
-        <Navbar vals={{anime, setAnime}}/>
         <Router>
+        <Navbar vals={{anime, setAnime}}/>
           <Routes>
             <Route exact path="/" element={ <Home vals={{anime, setAnime}}/>}/>
             <Route exact path="/:path" element={ <ErrorPage /> } />
@@ -27,6 +27,7 @@ function App() {
           </Routes>
         </Router>
         <Footer />
+        
     </div>
   )
 }
