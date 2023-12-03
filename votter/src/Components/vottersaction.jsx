@@ -36,7 +36,8 @@ function Votersac() {
     getRemainingTime();
     getCurrentStatus();
     postData();
-    console.log(rec); 
+    console.log(rec);  
+    console.log(remainingTime); 
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', handleAccountsChanged);
     }
@@ -85,6 +86,32 @@ function Votersac() {
 
   async function vote() {
     try {
+      // Check the count first
+      const countRes = await fetch("/get_count", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          electionId: state.aadhar,
+        }),
+      });
+  
+      if (!countRes.ok) {
+        console.error("Error checking count:", countRes.statusText);
+        // Handle error as needed
+        return;
+      }
+  
+      const countData = await countRes.json();
+  
+      if (countData.count != 0) {
+        // Display warning that the user cannot vote with this Aadhar ID
+        alert("Cannot vote with this Aadhar ID. Already voted.");
+        return;
+      }
+  
+      // Proceed with the voting process if the count is zero
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
@@ -97,18 +124,18 @@ function Votersac() {
       const tx = await contractInstance.vote(number);
       await tx.wait();
   
-      // now posting the data 
+      // Now posting the data
       const res = await fetch("/register_transaction", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           candidate: candidates[number],
-          id: state.aadhar
-        })
+          id: state.aadhar,
+        }),
       });
-      postData(); 
+      postData();
       setshowVotingTable(true);
   
       if (res.ok) {
@@ -119,7 +146,7 @@ function Votersac() {
         const votedData = {
           id: state.aadhar,
           candidate: candidates[number].name,
-          voted_to: voterHashedId
+          voted_to: voterHashedId,
         };
   
         setVotedData(votedData);
@@ -133,13 +160,12 @@ function Votersac() {
         const newLocalData = {
           id: voterHashedId,
           candidate: candidates[number].name,
-          voted_to: votedData.voted_to
+          voted_to: votedData.voted_to,
         };
   
-        const localData = JSON.parse(localStorage.getItem('votedData')) || [];
+        const localData = JSON.parse(localStorage.getItem("votedData")) || [];
         localData.push(votedData);
-        localStorage.setItem('votedData', JSON.stringify(localData));
-        
+        localStorage.setItem("votedData", JSON.stringify(localData));
       } else {
         console.error("Error recording transaction:", res.statusText);
         // Handle error as needed
@@ -151,7 +177,6 @@ function Votersac() {
     }
   }
   
-
 
   async function canVote() {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -196,6 +221,32 @@ function Votersac() {
       setVotingStatus(status);
   }
 
+  async function delete_election_data(won){
+    try {
+      const response = await fetch("/delete_data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          // Include any data you want to send in the body
+          // For example, you might want to send an election ID
+          electionId: 123, 
+          winner1 : won,
+        })
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
   async function getRemainingTime() {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
@@ -207,7 +258,9 @@ function Votersac() {
       console.log(time.toNumber()); 
       if(time.toNumber() === 0){
         console.log('function has invoked')
-        getWinner(); 
+        getWinner();  
+        console.log(winner)
+        
       }
       setremainingTime(parseInt(time, 16));
   }
@@ -288,6 +341,7 @@ function Votersac() {
       setWinner(maxVoteCountCandidate.name);
       setCount(maxVoteCountCandidate.voteCount);
       setfini(true);
+      delete_election_data(maxVoteCountCandidate.name); 
     
   }
   

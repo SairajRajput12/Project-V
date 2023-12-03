@@ -17,9 +17,8 @@ function Navbar(props) {
     <div className="nav flex ali-cent abs">
       <span className="title">Vote.me</span>
       <div className="list flex ali-cent">
-        <ul className="flex">
+        <ul className="flexs">
           <li>Home</li>
-          <li>About</li>
         </ul>
         <button className="button rel" onClick={changeData}>Admin Login</button>
       </div>

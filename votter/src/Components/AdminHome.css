@@ -76,3 +76,21 @@
 /* .visibality{
    display: none;
 } */
+
+/* Add this to your CSS file or style tag in your component */
+.election-table {
+   width: 100%;
+   border-collapse: collapse;
+   margin-top: 20px;
+ }
+ 
+ .election-table th, .election-table td {
+   border: 1px solid #ddd;
+   padding: 8px;
+   text-align: left;
+ }
+ 
+ .election-table th {
+   background-color: #f2f2f2;
+ }
+ 

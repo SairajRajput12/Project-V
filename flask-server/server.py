@@ -10,6 +10,8 @@ import requests
 from twilio.rest import Client
 import random
 import bcrypt
+from datetime import datetime, timedelta
+import requests
 
 app = Flask(__name__)
 
@@ -24,6 +26,8 @@ AUTH_TOKEN = "dd3ef75a12eb779f6dd69f9cce1b3778"
 TWILIO_NUMBER = "+13343669183"
 # DB_PASS = os.environ.get("DB_PASS")
 # DB_NAME = os.environ.get("DB_NAME")
+apisecreatekey = os.environ.get("apiscreate") 
+deviceId = os.environ.get("deviceId")
 
 app.secret_key = SEC_EC_KEY # Secret Key on which we are storing sessions, Something like Encryption Key
 
@@ -110,23 +114,46 @@ def writeIt(a):
         json.dump(contract_details, json_file, indent=4)
     print(f"Contract details saved to {file_path1}")
 
-# makeRun()
-
 
 
 #********************* Start Election ****************************
+def enter_election_result(election_name, duration, admin_id):
+    try:
+        current_time = datetime.now()
+        duration_to_add = timedelta(minutes=duration)
+        new_time = current_time + duration_to_add
+        formatted_current_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+        formatted_new_time = new_time.strftime("%Y-%m-%d %H:%M:%S")
+        print('election 127')
+        insert_query = "INSERT INTO election(start, end, admin_id, election_name) VALUES (%s, %s, %s, %s)" 
+        values = (formatted_current_time, formatted_new_time, admin_id, election_name)
+        cursor.execute(insert_query, values)
+        conn.commit()
+        print('Election result entered successfully')
+    except Exception as e:
+        print(f"Error entering election result: {str(e)}")
+
+
 @app.route('/start-election', methods=['POST'])
 def start_election():
     try:
+        refresh_query = 'update aadhar set count = %s' 
+        values = (0,) 
+        cursor.execute(refresh_query,values) 
+        conn.commit() 
         print('inside the function start election')
         data = request.get_json()  # Receive data from the POST request
         candidate_names = data.get("candidateNames")
-        duration = data.get("duration")
+        duration = int(data.get("duration"))  
+        election_name = data.get('electionName') 
+        admin_id = data.get('admin_id')
         add_data(candidate_names,duration)
         print(candidate_names) 
         print(duration)
         deploy_script_path = 'E:/Block chain project/scripts/deploy.js'  # Replace with the actual path to deploy.js
         makeRun(candidate_names,duration)
+        print(election_name)
+        enter_election_result(election_name,duration,admin_id)
         return jsonify({"message": "Election started successfully"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -137,6 +164,15 @@ def start_election():
 def giveCandidateId():
     return random.randrange(100000, 999999)
 
+@app.route('/election_data', methods=['GET'])
+def get_election_data():
+    try:
+        query = "SELECT election_id, start, end, election_name FROM election"
+        cursor.execute(query)
+        election_data = cursor.fetchall()
+        return jsonify(election_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def add_data(candidate_names, electionDuration):
     votes = 0
@@ -149,14 +185,15 @@ def add_data(candidate_names, electionDuration):
             cursor.execute(delete_query)
             print('both of these queries get executed')
             # Commit the changes to the database
-            # conn.commit()
+            conn.commit()
 
             # Delete existing data from the 'candidate' table
             delete_query = "DELETE FROM candidate"
             cursor.execute(delete_query) 
-            # conn.commit()
+            conn.commit()
             # Delete existing data from the 'voted_to' table
-            print('here the delete queries executed succesfully')
+            print('here the delete queries executed succesfully') 
+            print("line 192")
             if electionDuration is None or candidate_names is None:
                 return jsonify({"error": "Missing election duration or candidates"}), 400
 
@@ -173,9 +210,7 @@ def add_data(candidate_names, electionDuration):
     except Exception as e:
         # Handle exceptions, log the error, and return an error response
         return jsonify({"error": f"Failed to insert data: {str(e)}"}), 500
-    finally:
-        # Close the database connection
-        conn.close()
+
 
 
 #*********************** Verifying Admin ************************ 
@@ -185,10 +220,12 @@ def verify():
         # Get user-submitted data from the form
         data = request.get_json()
         username = data.get('username')
+        print(username)
         password = data.get('password')
-        print("entered into the verify function")
+        print(password)
+        print(username , " ",password)
         # Execute a SQL query to check if the data is present in the database
-        query = "SELECT * FROM adminI WHERE name = %s AND password = %s"
+        query = "SELECT * FROM admini WHERE name = %s AND password = %s"
         cursor.execute(query, (username, password))
         result = cursor.fetchone()
         print("your query is executed succesfully for admin verification")
@@ -196,7 +233,7 @@ def verify():
         if result:
             # Data is present in the database
             print("your query is executed succesfully for admin verification")
-            return jsonify({"message": "Data is present in the database"})
+            return jsonify({"message": "Data is present in the database","admin_data":result})
         else:
             # Data is absent in the database
             return jsonify({"message": "Data is not found in the database", "code":403})
@@ -234,23 +271,38 @@ def adharVerify():
         print(AUTH_TOKEN)
         client = Client(ACC_SID, AUTH_TOKEN)
         print(client)
-        body = "pappa he otp ahe  " + str(OTP)
+        body = "This is your otp: " + str(OTP)
         print(body)
         original_string = "+"+phone
         print(original_string)
         # Pushing OTP in session for verifying later
         session['response'] = str(OTP)  
+        phone = '+919359876429' 
+        message = {
+            "secret": '637ff89ec87ce7d861a4b94ef4322191b3d7e4ed',
+            "type": "sms",
+            "mode": "devices",
+            "device": "00000000-0000-0000-9943-bb661bd63709",
+            "sim": 1,
+            "phone": "+919359876429",
+            "message": body
+        }
+
 
         #sending message to Phone number
-        message = client.messages.create( 
-            from_=TWILIO_NUMBER,
-            body=body,
-            to=original_string
-        )
-        print(message)
+        # message = client.messages.create( 
+        #     from_=TWILIO_NUMBER,
+        #     body=body,
+        #     to=original_string
+        # )
+        # message='body'
+        # print(message)
+        r = requests.get(url = "https://www.cloud.smschef.com/api/send/otp", params = message) 
+        result = r.json()
+        print(result)
 
         # some validations 
-        if message:
+        if result:
             return jsonify({"status":200, "message":"Successfully sent OTP"})
         else:
             return jsonify({"status":400, "message": "Failed"})
@@ -334,6 +386,15 @@ def register():
             # Commit the changes to the database
             conn.commit()
 
+            # now update the count 
+            print(id)
+            query = 'update aadhar set count = %s where id = %s' 
+            cnt = 1
+            values = (cnt, id,)  # Wrap cnt and id in a tuple
+            cursor.execute(query, values)
+            conn.commit()
+            conn.commit()            
+
             return jsonify({"status": 200,"message": "Transaction recorded successfully","voter_hashed_id": voter_hashed_id})
 
         else:
@@ -372,12 +433,82 @@ def fetch_voted_data():
             "message": f"Error: {str(e)}"
         }
 
-    return jsonify(response_data)  # Corrected the return statement
-#******************* Just Kidding ********************************
+    return jsonify(response_data)  # Corrected the return statement 
+
+@app.route('/delete_data', methods=['POST'])
+def delete_data1():
+    try: 
+        print('mil gaya')
+        data = request.get_json()
+        election_id = data.get('electionId')
+        winner = data.get('winner1')
+
+        print(winner)
+
+        # Update winner in election table
+        update_query = 'UPDATE election SET winner = %s WHERE end <= NOW()'
+        cursor.execute(update_query, (winner,))
+        # updated_election_id = cursor.fetchone()[0]
+        conn.commit()
+
+        # Delete records from election_history where end time has passed for the updated election_id
+        delete_query = 'DELETE FROM election WHERE  end <= NOW()'
+        cursor.execute(delete_query)
+        conn.commit()
+    except Exception as e:
+        response_data = {
+            "status": 500, 
+            "message": f"Error: {str(e)}"
+        }
+
+    print(winner)
+    return jsonify({"status": 200, "message": "Success"})
+
+#**** Just Kidding ********************************
+@app.route('/election_history_data', methods=['GET'])
+def get_election_history_data():
+    try:
+        query = "SELECT election_id, admin_id, winner, election_name FROM election_history"
+        cursor.execute(query)
+        election_data = cursor.fetchall() 
+        print(election_data)
+        return jsonify(election_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
+@app.route('/get_count', methods=['POST']) 
+def give_me_count(): 
+    try:
+        data = request.get_json()
+        election_id = data.get('electionId')
+        query = "SELECT count FROM aadhar where id=%s" 
+        values = (election_id,)  # Wrap election_id in a tuple
+
+        cursor.execute(query,values)
+        election_data = cursor.fetchall() 
+        print(election_data)
+        return jsonify(election_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 @app.route('/')
 def hello_world():
     return "<p>Hello Vilas </>"        
 
 
+# # your API secret from (Tools -> API Keys) page
+# apiSecret = "API_SECRET"
+
+# r = requests.get(url = "https://www.cloud.smschef.com/api/get/earnings", params = {
+#     "secret": apiSecret
+# })
+  
+# # do something with response object
+# result = r.json()
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+

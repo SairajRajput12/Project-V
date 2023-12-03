@@ -148,3 +148,7 @@ input[type=number] {
 .link {
   z-index: 2;
 }
+
+body{
+  font-family: 'Hedvig Letters Serif', serif;
+}

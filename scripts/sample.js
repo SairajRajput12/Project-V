@@ -1,4 +1,4 @@
-const a = ['sairaj', 'rajput'];
-const b = 11;
+const a = ['sa', 'ra'];
+const b = 2;
 
 module.exports = { a, b };

@@ -26,6 +26,7 @@ function Home(props) {
       blurHome: "blur-home",
       disAdmin: "disable-admin-login-page",
     })
+    props.setShowInfo(true);
   }
 
   //**************AADHAR AUTHENTICATION ***********/
@@ -107,7 +108,9 @@ function Home(props) {
 
     const data = await res.json();
     if(data.status === 200){
+      props.setShowInfo(false);
       window.alert("OTP Verified Successfully!");
+      props.setShowInfo(false);
       Navigate("/Votersaction",{state:{aadhar}});
     }
     else if(data.status === 403){
@@ -157,9 +160,19 @@ function Home(props) {
        console.log("invalid Credentials!");
     }
     else{
+       console.log(data.admin_data[0]); 
+       console.log(data.admin_data[1]); 
+       console.log(data.admin_data[2]);
+       var admin_id = data.admin_data[0]; 
+       console.log(admin_id); 
+       var admin_name = data.admin_data[1]; 
+       console.log(admin_name);
+       var admin_email = data.admin_data[2]; 
+       console.log(admin_email);
        window.alert("Login Successfuly");
-       Navigate("/adminHome");
+       Navigate("/adminHome",{state:{admin_id,admin_name,admin_email}});
        console.log("line executed succesfully !!!"); 
+       props.setShowInfo(false);
     }
  }
 

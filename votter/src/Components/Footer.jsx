@@ -6,8 +6,6 @@ function Footer() {
     <div className="footer flex">
       <div className="side1">
          <span className="title">Vote.me	&#169;</span>
-         <h3>About Us</h3>
-         <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Perferendis, doloribus! Asperiores unde ipsa qui soluta. Totam reiciendis libero voluptate ad! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestias mollitia facilis voluptas incidunt dolore!</p>
       </div>
       <div className="side2">
          <h3>Contact US</h3>

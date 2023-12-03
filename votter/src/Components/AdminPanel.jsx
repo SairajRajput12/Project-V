@@ -83,7 +83,7 @@ function AdminPanel(props) {
 
   const handleStartElection = (candidateNames, duration) => {
     axios
-      .post('/start-election', { candidateNames, duration })
+      .post('/start-election', { candidateNames, duration ,electionName})
       .then((response) => {
         console.log('Election started:', response.data);
         console.log(contractD); 
@@ -99,6 +99,7 @@ function AdminPanel(props) {
     e.preventDefault(); // Prevent the default form submission
     const candidateNames = candidates; // Replace with your candidate names
     const duration = 23; // Replace with your desired duration
+    console.log(electionName); 
     handleStartElection(candidateNames, duration);    
   };
   
@@ -124,39 +125,51 @@ function AdminPanel(props) {
 
       {showForm ? (
         <Form style={formContainerStyle}>
-          <label style={labelStyle}>Election Duration (in days):</label>
-          <input
-            style={inputStyle}
-            type="number"
-            placeholder="Enter duration (in days)"
-            value={electionDuration}
-            onChange={(e) => setElectionDuration(e.target.value)}
-          />
-          {candidates.map((candidate, index) => (
-            <div key={index}>
-              <label style={labelStyle}>Candidate ID:</label>
-              <input
-                style={inputStyle}
-                type="text"
-                placeholder="Enter candidate ID"
-                value={candidate.id}
-                onChange={(e) => handleCandidateChange(index, 'id', e.target.value)}
-              />
-              <label style={labelStyle}>Candidate Name:</label>
-              <input
-                style={inputStyle}
-                type="text"
-                placeholder="Enter candidate name"
-                value={candidate.name}
-                onChange={(e) => handleCandidateChange(index, 'name', e.target.value)}
-              />
-              
-            </div>
-          ))}
-          <button style={buttonStyle} onClick={handleCreateElection1}>
-            Start Election
-          </button>
-        </Form>
+        <label style={labelStyle}>Election Name:</label>
+        <input
+          style={inputStyle}
+          type="text"
+          placeholder="Enter election name"
+          value={electionName}
+          onChange={(e) => setElectionName(e.target.value)}
+        />
+      
+        <label style={labelStyle}>Election Duration:</label>
+        <input
+          style={inputStyle}
+          type="number"
+          placeholder="Enter duration"
+          value={electionDuration}
+          onChange={(e) => setElectionDuration(e.target.value)}
+        />
+      
+        {candidates.map((candidate, index) => (
+          <div key={index}>
+            <label style={labelStyle}>Candidate ID:</label>
+            <input
+              style={inputStyle}
+              type="text"
+              placeholder="Enter candidate ID"
+              value={candidate.id}
+              onChange={(e) => handleCandidateChange(index, 'id', e.target.value)}
+            />
+      
+            <label style={labelStyle}>Candidate Name:</label>
+            <input
+              style={inputStyle}
+              type="text"
+              placeholder="Enter candidate name"
+              value={candidate.name}
+              onChange={(e) => handleCandidateChange(index, 'name', e.target.value)}
+            />
+          </div>
+        ))}
+      
+        <button style={buttonStyle} onClick={handleCreateElection1}>
+          Start Election
+        </button>
+      </Form>
+      
       ) : (
         <Button onClick={handleCreateElection}>Create Election</Button>
       )}
